@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Posts;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -32,15 +33,17 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string',
-            'content' => 'required|string',
+            'title' => 'required|string|max:3',
+            'content' => 'required|string|min:12',
         ]);
 
+        $user_id = Auth::user()->id;
         $post = new Posts();
         $post->title = $request->title;
         $post->content = $request->content;
+        $post->user_id = $user_id;
         $post->save();
-
+        
         return redirect()->route('posts.index');
     }
 
@@ -75,7 +78,6 @@ class PostController extends Controller
             'title' => 'sometimes|string',
             'content' => 'sometimes|string',
         ]);
-
         $post = Posts::findOrFail($id);
         $post->title = $request->title;
         $post->content = $request->content;
